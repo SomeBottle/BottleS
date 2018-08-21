@@ -29,14 +29,14 @@ function tranTime($time) {
     return $str;
 }
 function watchurl($c){
-	$main=explode(' ',$c);
+	$main=explode('&nbsp;',$c);
 	$end='';
 	foreach($main as $val){
 		if(!empty($val)){
 			if(stripos($val,'http://')!==false||stripos($val,'https://')!==false){
 				$val='<a href=\''.$val.'\' target=\'_blank\'>'.$val.'</a>';
 			}
-			$end=$end.$val;
+			$end=$end.$val.'&nbsp;';
 		}
 	}
 	return $end;
