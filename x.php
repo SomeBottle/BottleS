@@ -125,7 +125,10 @@ if ($tp == 'rqlog') {
         $m = $js;
         $mj = json_decode($m, true);
         $num = intval($mj['num']);
+		$con=str_ireplace(' ',"&nbsp;",$con);
 		$origincon=$con;
+		$con = str_ireplace('"',"&quot;",$con);
+		$con = str_ireplace("'","&#039;",$con);
         $mj[$num]['content'] = htmlspecialchars($con);
         $mj[$num]['time'] = $ntime;
         $mj['num'] = $num + 1;
