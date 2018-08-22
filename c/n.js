@@ -4,6 +4,7 @@ var scrollflag=true;
 var time=0;
 var flag=false;
 var timer;
+var submiting=false;
 function e(){
 	$.ajax({
         type: "post",
@@ -56,6 +57,7 @@ function g(s){
       });
 }
 function d(s){
+	if(confirm('真的要删除嘛...')){
 	$.ajax({
         type: "post",
         url: "x.php",
@@ -69,6 +71,7 @@ function d(s){
 		  data=datat;
 		  if(data.result=='ok'){
 			  gc();
+			  document.getElementById('ma').style.display='block';
 		  }else{
 			  notice('删除失败...');
 		  }
@@ -77,8 +80,12 @@ function d(s){
 			notice('服务器通信失败QAQ');
         }
       });
+	}
 }
 function s(){
+	if(!submiting){
+	document.getElementById("btn").disabled = true;
+	submiting=true;
 	$.ajax({
         type: "post",
         url: "x.php",
@@ -93,15 +100,20 @@ function s(){
 		  if(data.result=='ok'){
 			  hs(data.r,'l');
 			  document.getElementById('c').value='';
+			  submiting=false;
+			  document.getElementById("btn").disabled = false;
 		  }else{
 			  notice('提交失败：');
 			  notice(data.m);
+			  submiting=false;
+			  document.getElementById("btn").disabled = false;
 		  }
         },
         error:function(msg){
 			notice('服务器通信失败QAQ');
         }
       });
+	}
 }
 function gc(){
 	nowpage=0;

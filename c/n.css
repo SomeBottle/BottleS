@@ -92,6 +92,7 @@ textarea{
 font-family:'\5FAE\8F6F\96C5\9ED1';color:#a4a4a4;text-align:left;border:0;-webkit-appearance: none;background-color:#e6e6e6;width:100%;border-radius:10px;padding:14px 10px 14px 10px;font-size:30px;outline:0;
 }
 .b{transition: 1s ease;cursor:hand;font-family:'\5FAE\8F6F\96C5\9ED1';display:block;-webkit-appearance: none;color:#f2f2f2;text-align:center;border:0;background-color:#0080ff;width:auto;border-radius:10px;padding:10px 10px 10px 10px;font-size:30px;outline:0}
+.b:disabled{background-color:#A4A4A4}
 input{
                 border: 1px solid #ccc;
                 padding: 7px 0px;

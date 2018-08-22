@@ -2,7 +2,7 @@
 <a href='javascript:void(0);' onclick='u()'><h3>[usr]</h3></a>
 <p class='tx'><input type='text' id='search' placeholder='搜索'></input></p>
 <p><textarea rows="3" id='c' placeholder='想什么呢?'></textarea></p>
-<p><input type='button' class='b' onclick='s()' value='发射~'></input></p>
+<p><input type='button' class='b' onclick='s()' id='btn' value='发射~'></input></p>
 </div>
 <div class='l' id='l'></div>
 <p><a href='javascript:void(0);' onclick='g(nowpage);' class='ma' id='ma'>加载更Door♂</a></p>
