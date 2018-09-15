@@ -6,7 +6,12 @@ var flag=false;
 var timer;
 var submiting=false;
 var lc=window.location.href;
-var locates=(lc.split('#')[1]).split('?')[0];
+function home(){
+	window.open('#','_self');
+	window.location.reload();
+}
+if(lc.indexOf('#')!==-1){
+	var locates=(lc.split('#')[1]).split('?')[0];
 var rlocate=locates;
 function checklc(){
 	lc=window.location.href;
@@ -43,10 +48,6 @@ function analyselink(l){
         }
       });
 	}
-}
-function home(){
-	window.open('#','_self');
-	window.location.reload();
 }
 function e(){
 	$.ajax({
@@ -290,4 +291,7 @@ function notice(s){
 			});
 		},1500);
 	});
+}
+}else{
+	home();
 }
