@@ -7,6 +7,12 @@ header('Content-type:text/json;charset=utf-8');
 if (!is_dir('./d/')) {
     mkdir('./d/');
 }
+if(!is_dir('./d/share/')){
+			mkdir('./d/share/');
+		}
+		if(!file_exists('./d/share/list.php')){
+			file_put_contents('./d/share/list.php','<?php $shares=array();?>');
+		}
 function tranTime($time) {
     $rtime = date("m-d H:i", $time);
     $htime = date("H:i", $time);
@@ -46,6 +52,7 @@ $tp = $_POST['t'];
 $con = $_POST['c'];
 $start = $_POST['st'];
 $post = $_POST['pt'];
+$linkt = $_POST['lk'];
 $r['result'] = 'ok';
 $search = $_POST['search'];
 if ($tp == 'rqlog') {
@@ -78,7 +85,7 @@ if ($tp == 'rqlog') {
 					$ncon=htmlspecialchars_decode($mj[$k]['content']);
 					$ncon=watchurl($ncon);
 			        $ncon=str_replace(array("\r\n", "\r", "\n"),'<br>',$ncon); 
-                    $str = $str . '<div class=\'o\'><p class=\'w\'>' . $ncon . '</p><p class=\'s\'>' . $nowt . '</p><a class=\'x\' href=\'javascript:void(0);\' onclick=\'d(' . $k . ')\'>×</a></div>';
+                    $str = $str . '<div class=\'o\'><p class=\'w\'>' . $ncon . '</p><p class=\'s\'>' . $nowt . '&nbsp;&nbsp;<a class=\'sh\' href=\'javascript:void(0);\' onclick=\'share('.$k.');\'>Share</a></p><a class=\'x\' href=\'javascript:void(0);\' onclick=\'d(' . $k . ')\'>×</a></div>';
                 }
             }
             $r['r'] = $str;
@@ -105,7 +112,7 @@ if ($tp == 'rqlog') {
 			$ncon=htmlspecialchars_decode($mj[$k]['content']);
 			$ncon=watchurl($ncon);
 			$ncon=str_replace(array("\r\n", "\r", "\n"),'<br>',$ncon); 
-            $str = $str . '<div class=\'o\'><p class=\'w\'>' . $ncon . '</p><p class=\'s\'>' . $nowt . '</p><a class=\'x\'  href=\'javascript:void(0);\' onclick=\'d(' . $k . ')\'>×</a></div>';
+            $str = $str . '<div class=\'o\'><p class=\'w\'>' . $ncon . '</p><p class=\'s\'>' . $nowt . '&nbsp;&nbsp;<a class=\'sh\' href=\'javascript:void(0);\' onclick=\'share('.$k.');\'>Share</a></p><a class=\'x\'  href=\'javascript:void(0);\' onclick=\'d(' . $k . ')\'>×</a></div>';
         }
     }
     if (empty($str)) {
@@ -159,7 +166,86 @@ if ($tp == 'rqlog') {
 	} else {
         $r['result'] = 'notok';
     }
-} else if ($tp == 'search') {
+} else if ($tp == 'rqshare') {
+	if (checklogin()) {
+    $f = './d/' . getnowusr() . '.php';
+	require $f;
+    $m = $js;
+    $mj = json_decode($m, true);
+    $num = intval($mj['num']);
+    if (array_key_exists($post, $mj)) {
+        require './d/share/list.php';
+		$link=base64_encode(grc(15));
+		if(in_array(getnowusr().':'.$post,$shares)){
+			foreach($shares as $k=>$v){
+				if($v==getnowusr().':'.$post){
+					$link=$k;
+					break;
+				}
+			}
+		}else{
+		$shares[$link]=getnowusr().':'.$post;
+		}
+		$r['rb']='//'.$_SERVER['SERVER_NAME'].str_ireplace('x.php','',$_SERVER["REQUEST_URI"]).'#'.$link;
+		file_put_contents('./d/share/list.php','<?php $shares='.var_export($shares,true).';?>');
+        $r['result'] = 'ok';
+    } else {
+        $r['result'] = 'notok';
+    }
+	} else {
+        $r['result'] = 'notok';
+    }
+} else if ($tp == 'rqdelshare') {
+	if (checklogin()) {
+    require './d/share/list.php';
+	$str=$shares[$linkt];
+	$usr=explode(':',$str)[0];
+	if($usr==getnowusr()){
+	if(array_key_exists($linkt,$shares)){
+		unset($shares[$linkt]);
+		file_put_contents('./d/share/list.php','<?php $shares='.var_export($shares,true).';?>');
+		$r['result'] = 'ok';
+	}
+	}else{
+	 $r['result'] = 'notok';
+	}
+	} else {
+        $r['result'] = 'notok';
+    }
+}  else if ($tp == 'rqlink') {
+	require './d/share/list.php';
+	if(array_key_exists($linkt,$shares)){
+	$str=$shares[$linkt];
+	$usr=explode(':',$str)[0];
+	$post=explode(':',$str)[1];
+    $f = './d/' . $usr . '.php';
+	require $f;
+    $m = $js;
+    $mj = json_decode($m, true);
+    $num = intval($mj['num']);
+    if (array_key_exists($post, $mj)) {
+        $nowt = tranTime(strtotime($mj[$post]['time']));
+			$ncon=htmlspecialchars_decode($mj[$post]['content']);
+			$ncon=watchurl($ncon);
+			$ncon=str_replace(array("\r\n", "\r", "\n"),'<br>',$ncon); 
+			$lmsg='';
+			if(checklogin()&&$usr==getnowusr()){
+			$lmsg='&nbsp;&nbsp;<a class=\'sh\' href=\'javascript:void(0);\' onclick=\'unshare("'.$linkt.'");\'>Unshare</a>';
+			}
+            $r['r'] = '<div class=\'l\' id=\'l\'><div class=\'o\'><p class=\'w\'>' . $ncon . '</p><p class=\'s\'>来自'.$usr.'&nbsp;' . $nowt .$lmsg. '</p></div></div><p><input type=\'button\' class=\'b\' onclick=\'home()\' value=\'返回\'></input></p>';
+        $r['result'] = 'ok';
+		if(empty($post)){
+			if(empty($mj[0])){
+			   $r['result'] = 'notok';
+			}
+		}
+    } else {
+        $r['result'] = 'notok';
+    }
+	}else{
+		$r['result'] = 'notok';
+	}
+}    else if ($tp == 'search') {
     $f = './d/' . getnowusr() . '.php';
 	require $f;
     $m = $js;
@@ -174,7 +260,7 @@ if ($tp == 'rqlog') {
                 $nowt = tranTime(strtotime($mj[$k]['time']));
                 $mj[$k]['content'] = str_ireplace($search, '<span style=\'color:blue;\'>' . $search . '</span>', $mj[$k]['content']);
 				$mj[$k]['content']=str_replace(array("\r\n", "\r", "\n"),'<br>',$mj[$k]['content']);
-                $str = $str . '<div class=\'o\'><p class=\'w\'>' . htmlspecialchars_decode($mj[$k]['content']) . '</p><p class=\'s\'>' . $nowt . '</p><a class=\'x\'  href=\'javascript:void(0);\' onclick=\'d(' . $k . ')\'>×</a></div>';
+                $str = $str . '<div class=\'o\'><p class=\'w\'>' . htmlspecialchars_decode($mj[$k]['content']) . '</p><p class=\'s\'>' . $nowt . '&nbsp;&nbsp;<a class=\'sh\' href=\'javascript:void(0);\' onclick=\'share('.$k.');\'>Share</a></p><a class=\'x\'  href=\'javascript:void(0);\' onclick=\'d(' . $k . ')\'>×</a></div>';
             }
         }
     }
