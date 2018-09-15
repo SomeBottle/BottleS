@@ -48,13 +48,13 @@ function watchurl($c){
 	return $end;
 }
 $onepage = 8;
-$tp = $_POST['t'];
-$con = $_POST['c'];
-$start = $_POST['st'];
-$post = $_POST['pt'];
-$linkt = $_POST['lk'];
+$tp = @$_POST['t'];
+$con = @$_POST['c'];
+$start = @$_POST['st'];
+$post = @$_POST['pt'];
+$linkt = @$_POST['lk'];
 $r['result'] = 'ok';
-$search = $_POST['search'];
+$search = @$_POST['search'];
 if ($tp == 'rqlog') {
     if (checklogin()) {
         $a = file_get_contents('./c/page.php');
@@ -82,6 +82,9 @@ if ($tp == 'rqlog') {
             foreach ($mj as $k => $v) {
                 if ($k !== 'num' && intval($k) >= $total - $onepage) {
                     $nowt = tranTime(strtotime($mj[$k]['time']));
+					if(stripos($mj[$k]['content'],'base64')!==false){
+				$mj[$k]['content']=base64_decode(str_ireplace('base64','',$mj[$k]['content']));
+			}
 					$ncon=htmlspecialchars_decode($mj[$k]['content']);
 					$ncon=watchurl($ncon);
 			        $ncon=str_replace(array("\r\n", "\r", "\n"),'<br>',$ncon); 
@@ -109,6 +112,9 @@ if ($tp == 'rqlog') {
     foreach ($mj as $k => $v) {
         if ($k !== 'num' && intval($k) >= $total - $end && intval($k) < $total - $start) {
             $nowt = tranTime(strtotime($mj[$k]['time']));
+			if(stripos($mj[$k]['content'],'base64')!==false){
+				$mj[$k]['content']=base64_decode(str_ireplace('base64','',$mj[$k]['content']));
+			}
 			$ncon=htmlspecialchars_decode($mj[$k]['content']);
 			$ncon=watchurl($ncon);
 			$ncon=str_replace(array("\r\n", "\r", "\n"),'<br>',$ncon); 
@@ -136,6 +142,9 @@ if ($tp == 'rqlog') {
 		$origincon=$con;
 		$con = str_ireplace('"',"&quot;",$con);
 		$con = str_ireplace("'","&#039;",$con);
+		if(strlen($con)>250){
+			$con='base64'.base64_encode($con);
+		}
         $mj[$num]['content'] = htmlspecialchars($con);
         $mj[$num]['time'] = $ntime;
         $mj['num'] = $num + 1;
@@ -225,6 +234,9 @@ if ($tp == 'rqlog') {
     $num = intval($mj['num']);
     if (array_key_exists($post, $mj)) {
         $nowt = tranTime(strtotime($mj[$post]['time']));
+		if(stripos($mj[$post]['content'],'base64')!==false){
+				$mj[$post]['content']=base64_decode(str_ireplace('base64','',$mj[$post]['content']));
+			}
 			$ncon=htmlspecialchars_decode($mj[$post]['content']);
 			$ncon=watchurl($ncon);
 			$ncon=str_replace(array("\r\n", "\r", "\n"),'<br>',$ncon); 
@@ -256,6 +268,9 @@ if ($tp == 'rqlog') {
     $total = intval($mj['num']);
     foreach ($mj as $k => $v) {
         if ($k !== 'num') {
+			if(stripos($mj[$k]['content'],'base64')!==false){
+				$mj[$k]['content']=base64_decode(str_ireplace('base64','',$mj[$k]['content']));
+			}
             if (stripos($mj[$k]['content'], $search) !== false || stripos($mj[$k]['time'], $search) !== false) {
                 $nowt = tranTime(strtotime($mj[$k]['time']));
                 $mj[$k]['content'] = str_ireplace($search, '<span style=\'color:blue;\'>' . $search . '</span>', $mj[$k]['content']);
