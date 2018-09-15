@@ -6,11 +6,11 @@ var flag=false;
 var timer;
 var submiting=false;
 var lc=window.location.href;
-var locates=lc.split('#')[1];
+var locates=(lc.split('#')[1]).split('?')[0];
 var rlocate=locates;
 function checklc(){
 	lc=window.location.href;
-	locates=lc.split('#')[1];
+	locates=(lc.split('#')[1]).split('?')[0];
 	if(locates!==rlocate){
 		rlocate=locates;
 		analyselink(locates);
