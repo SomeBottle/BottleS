@@ -175,7 +175,7 @@ if ($tp == 'rqlog') {
     $num = intval($mj['num']);
     if (array_key_exists($post, $mj)) {
         require './d/share/list.php';
-		$link=base64_encode(grc(15));
+		$link=base64_encode(grc(6).time());
 		if(in_array(getnowusr().':'.$post,$shares)){
 			foreach($shares as $k=>$v){
 				if($v==getnowusr().':'.$post){
