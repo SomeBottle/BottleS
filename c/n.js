@@ -185,7 +185,7 @@ function s(){
 	$.ajax({
         type: "post",
         url: "x.php",
-        data: {t:'submit',c:document.getElementById('c').value},
+        data: {t:'submit',c:encodeURIComponent(document.getElementById('c').value)},
         dataType: "text",//回调函数接收数据的数据格式
         success: function(msg){
           var datat='';
