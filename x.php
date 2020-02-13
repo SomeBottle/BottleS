@@ -50,6 +50,7 @@ function watchurl($c){
 $onepage = 8;
 $tp = @$_POST['t'];
 $con = @$_POST['c'];
+$con=urldecode($con);
 $start = @$_POST['st'];
 $post = @$_POST['pt'];
 $linkt = @$_POST['lk'];
@@ -67,11 +68,11 @@ if ($tp == 'rqlog') {
     if (checklogin()) {
         $f = './d/' . getnowusr() . '.php';
         if (!file_exists($f)) {
-            file_put_contents($f, '<?php $js=\'{"num":"0"}\';?>');
+            file_put_contents($f, '<?php $js=\''.base64_encode('{"num":"0"}').'\';?>');
         }
 		require $f;
         $m = $js;
-        $mj = json_decode($m, true);
+        $mj = json_decode(base64_decode($m), true);
         krsort($mj);
         if (intval($mj['num']) <= 0) {
             $r['r'] = '<h2>啥子都没有~OAO</h2><script>document.getElementById(\'ma\').style.display=\'none\';</script>';
@@ -82,10 +83,8 @@ if ($tp == 'rqlog') {
             foreach ($mj as $k => $v) {
                 if ($k !== 'num' && intval($k) >= $total - $onepage) {
                     $nowt = tranTime(strtotime($mj[$k]['time']));
-					if(stripos($mj[$k]['content'],'base64')!==false){
-				$mj[$k]['content']=base64_decode(str_ireplace('base64','',$mj[$k]['content']));
-			}
-					$ncon=htmlspecialchars_decode($mj[$k]['content']);
+					$conp=base64_decode($mj[$k]['content']);
+					$ncon=htmlspecialchars_decode(stripslashes($conp));
 					$ncon=watchurl($ncon);
 			        $ncon=str_replace(array("\r\n", "\r", "\n"),'<br>',$ncon); 
                     $str = $str . '<div class=\'o\'><p class=\'w\'>' . $ncon . '</p><p class=\'s\'>' . $nowt . '&nbsp;&nbsp;<a class=\'sh\' href=\'javascript:void(0);\' onclick=\'share('.$k.');\'>Share</a></p><a class=\'x\' href=\'javascript:void(0);\' onclick=\'d(' . $k . ')\'>×</a></div>';
@@ -104,7 +103,7 @@ if ($tp == 'rqlog') {
     $f = './d/' . getnowusr() . '.php';
 	require $f;
     $m = $js;
-    $mj = json_decode($m, true);
+    $mj = json_decode(base64_decode($m), true);
     krsort($mj);
     $str = '';
     $nowt = '';
@@ -112,10 +111,7 @@ if ($tp == 'rqlog') {
     foreach ($mj as $k => $v) {
         if ($k !== 'num' && intval($k) >= $total - $end && intval($k) < $total - $start) {
             $nowt = tranTime(strtotime($mj[$k]['time']));
-			if(stripos($mj[$k]['content'],'base64')!==false){
-				$mj[$k]['content']=base64_decode(str_ireplace('base64','',$mj[$k]['content']));
-			}
-			$ncon=htmlspecialchars_decode($mj[$k]['content']);
+			$ncon=htmlspecialchars_decode(stripslashes(base64_decode($mj[$k]['content'])));
 			$ncon=watchurl($ncon);
 			$ncon=str_replace(array("\r\n", "\r", "\n"),'<br>',$ncon); 
             $str = $str . '<div class=\'o\'><p class=\'w\'>' . $ncon . '</p><p class=\'s\'>' . $nowt . '&nbsp;&nbsp;<a class=\'sh\' href=\'javascript:void(0);\' onclick=\'share('.$k.');\'>Share</a></p><a class=\'x\'  href=\'javascript:void(0);\' onclick=\'d(' . $k . ')\'>×</a></div>';
@@ -136,19 +132,15 @@ if ($tp == 'rqlog') {
         $f = './d/' . getnowusr() . '.php';
 		require $f;
         $m = $js;
-        $mj = json_decode($m, true);
+        $mj = json_decode(base64_decode($m), true);
         $num = intval($mj['num']);
 		$con=str_ireplace(' ',"&nbsp;",$con);
 		$origincon=$con;
-		$con = str_ireplace('"',"&quot;",$con);
-		$con = str_ireplace("'","&#039;",$con);
-		if(strlen($con)>250){
-			$con='base64'.base64_encode($con);
-		}
-        $mj[$num]['content'] = htmlspecialchars($con);
+		$con=base64_encode(htmlspecialchars(addslashes($con)));
+        $mj[$num]['content'] = $con;
         $mj[$num]['time'] = $ntime;
         $mj['num'] = $num + 1;
-        file_put_contents($f, '<?php $js=\''.json_encode($mj, true).'\';?>');
+        file_put_contents($f, '<?php $js=\''.base64_encode(json_encode($mj, true)).'\';?>');
         $r['r'] = '<div class=\'o\'><p class=\'w\'>' . watchurl(nl2br($origincon)) . '</p><p class=\'s\'>刚刚</p></div>';
     } else {
         $r['result'] = 'notok';
@@ -162,12 +154,12 @@ if ($tp == 'rqlog') {
     $f = './d/' . getnowusr() . '.php';
 	require $f;
     $m = $js;
-    $mj = json_decode($m, true);
+    $mj = json_decode(base64_decode($m), true);
     $num = intval($mj['num']);
     if (array_key_exists($post, $mj)) {
         array_splice($mj, ($post + 1), 1);
         $mj['num'] = $num - 1;
-        file_put_contents($f, '<?php $js=\''.json_encode($mj, true).'\';?>');
+        file_put_contents($f, '<?php $js=\''.base64_encode(json_encode($mj, true)).'\';?>');
         $r['result'] = 'ok';
     } else {
         $r['result'] = 'notok';
@@ -180,7 +172,7 @@ if ($tp == 'rqlog') {
     $f = './d/' . getnowusr() . '.php';
 	require $f;
     $m = $js;
-    $mj = json_decode($m, true);
+    $mj = json_decode(base64_decode($m), true);
     $num = intval($mj['num']);
     if (array_key_exists($post, $mj)) {
         require './d/share/list.php';
@@ -230,14 +222,12 @@ if ($tp == 'rqlog') {
     $f = './d/' . $usr . '.php';
 	require $f;
     $m = $js;
-    $mj = json_decode($m, true);
+    $mj = json_decode(base64_decode($m), true);
     $num = intval($mj['num']);
     if (array_key_exists($post, $mj)) {
         $nowt = tranTime(strtotime($mj[$post]['time']));
-		if(stripos($mj[$post]['content'],'base64')!==false){
-				$mj[$post]['content']=base64_decode(str_ireplace('base64','',$mj[$post]['content']));
-			}
-			$ncon=htmlspecialchars_decode($mj[$post]['content']);
+		$conp=base64_decode($mj[$post]['content']);
+			$ncon=htmlspecialchars_decode(stripslashes($conp));
 			$ncon=watchurl($ncon);
 			$ncon=str_replace(array("\r\n", "\r", "\n"),'<br>',$ncon); 
 			$lmsg='';
@@ -261,21 +251,19 @@ if ($tp == 'rqlog') {
     $f = './d/' . getnowusr() . '.php';
 	require $f;
     $m = $js;
-    $mj = json_decode($m, true);
+    $mj = json_decode(base64_decode($m), true);
     krsort($mj);
     $str = '';
     $nowt = '';
     $total = intval($mj['num']);
     foreach ($mj as $k => $v) {
         if ($k !== 'num') {
-			if(stripos($mj[$k]['content'],'base64')!==false){
-				$mj[$k]['content']=base64_decode(str_ireplace('base64','',$mj[$k]['content']));
-			}
-            if (stripos($mj[$k]['content'], $search) !== false || stripos($mj[$k]['time'], $search) !== false) {
+			$conp=htmlspecialchars_decode(stripslashes(base64_decode($mj[$k]['content'])));
+            if (stripos($conp, $search) !== false || stripos($mj[$k]['time'], $search) !== false) {
                 $nowt = tranTime(strtotime($mj[$k]['time']));
-                $mj[$k]['content'] = str_ireplace($search, '<span style=\'color:blue;\'>' . $search . '</span>', $mj[$k]['content']);
-				$mj[$k]['content']=str_replace(array("\r\n", "\r", "\n"),'<br>',$mj[$k]['content']);
-                $str = $str . '<div class=\'o\'><p class=\'w\'>' . htmlspecialchars_decode($mj[$k]['content']) . '</p><p class=\'s\'>' . $nowt . '&nbsp;&nbsp;<a class=\'sh\' href=\'javascript:void(0);\' onclick=\'share('.$k.');\'>Share</a></p><a class=\'x\'  href=\'javascript:void(0);\' onclick=\'d(' . $k . ')\'>×</a></div>';
+                $conp = str_ireplace($search, '<span style=\'color:blue;\'>' . $search . '</span>', $conp);
+				$conp=str_replace(array("\r\n", "\r", "\n"),'<br>',$conp);
+                $str = $str . '<div class=\'o\'><p class=\'w\'>' . $conp . '</p><p class=\'s\'>' . $nowt . '&nbsp;&nbsp;<a class=\'sh\' href=\'javascript:void(0);\' onclick=\'share('.$k.');\'>Share</a></p><a class=\'x\'  href=\'javascript:void(0);\' onclick=\'d(' . $k . ')\'>×</a></div>';
             }
         }
     }
